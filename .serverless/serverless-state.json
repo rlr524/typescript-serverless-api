@@ -7,6 +7,8 @@
     "provider": {
       "name": "aws",
       "runtime": "nodejs14.x",
+      "profile": "serverless-user",
+      "region": "us-west-2",
       "apiGateway": {
         "minimumCompressionSize": 1024,
         "shouldStartNameWithService": true
@@ -26,7 +28,6 @@
       ],
       "stage": "dev",
       "variableSyntax": "\\${([^{}:]+?(?:\\(|:)(?:[^:{}][^{}]*?)?)}",
-      "region": "us-east-1",
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
         "AWSTemplateFormatVersion": "2010-09-09",
@@ -101,10 +102,10 @@
               }
             }
           },
-          "HelloLogGroup": {
+          "GetCityInfoLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/typescript-serverless-api-dev-hello"
+              "LogGroupName": "/aws/lambda/typescript-serverless-api-dev-getCityInfo"
             }
           },
           "TranslateLogGroup": {
@@ -193,18 +194,18 @@
               }
             }
           },
-          "HelloLambdaFunction": {
+          "GetCityInfoLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
               "Code": {
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/typescript-serverless-api/dev/1615247206575-2021-03-08T23:46:46.575Z/typescript-serverless-api.zip"
+                "S3Key": "serverless/typescript-serverless-api/dev/1615248542948-2021-03-09T00:09:02.948Z/typescript-serverless-api.zip"
               },
-              "Handler": "src/functions/hello/handler.main",
+              "Handler": "lambdas/getCityInfo.handler",
               "Runtime": "nodejs14.x",
-              "FunctionName": "typescript-serverless-api-dev-hello",
+              "FunctionName": "typescript-serverless-api-dev-getCityInfo",
               "MemorySize": 1024,
               "Timeout": 6,
               "Environment": {
@@ -220,7 +221,7 @@
               }
             },
             "DependsOn": [
-              "HelloLogGroup"
+              "GetCityInfoLogGroup"
             ]
           },
           "TranslateLambdaFunction": {
@@ -230,9 +231,9 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/typescript-serverless-api/dev/1615247206575-2021-03-08T23:46:46.575Z/typescript-serverless-api.zip"
+                "S3Key": "serverless/typescript-serverless-api/dev/1615248542948-2021-03-09T00:09:02.948Z/typescript-serverless-api.zip"
               },
-              "Handler": "src/lambdas/translate.handler",
+              "Handler": "lambdas/translate.handler",
               "Runtime": "nodejs14.x",
               "FunctionName": "typescript-serverless-api-dev-translate",
               "MemorySize": 1024,
@@ -253,24 +254,24 @@
               "TranslateLogGroup"
             ]
           },
-          "HelloLambdaVersionS1ZJNN8qPdtMiJ00J1vQ38a9wSem6W75P6EHXW6B3M": {
+          "GetCityInfoLambdaVersionv4SQf5tzkuiOYblAoW2RuW0qJEwGr3NdzRsT26ZoSA": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
-                "Ref": "HelloLambdaFunction"
+                "Ref": "GetCityInfoLambdaFunction"
               },
-              "CodeSha256": "y/yYwfxY4YWB4LtwiB0bm5ScsjIU0LaUZ+yM/IOUm+Q="
+              "CodeSha256": "S16Y6skJWB3zJqPgoL8VoTe3JVOUe8p+ilouVSqj6uY="
             }
           },
-          "TranslateLambdaVersionElNA9SazAXUyjSB2IpfHOdHvvYQCar4v9lDJcJSE9k": {
+          "TranslateLambdaVersionzYYyh0ehkaw6ffIuw1DNxEWAunuIp9FsQxiW2YxwJk": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "TranslateLambdaFunction"
               },
-              "CodeSha256": "y/yYwfxY4YWB4LtwiB0bm5ScsjIU0LaUZ+yM/IOUm+Q="
+              "CodeSha256": "S16Y6skJWB3zJqPgoL8VoTe3JVOUe8p+ilouVSqj6uY="
             }
           },
           "ApiGatewayRestApi": {
@@ -286,7 +287,7 @@
               "MinimumCompressionSize": 1024
             }
           },
-          "ApiGatewayResourceHello": {
+          "ApiGatewayResourceGetDashcity": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
               "ParentId": {
@@ -295,7 +296,19 @@
                   "RootResourceId"
                 ]
               },
-              "PathPart": "hello",
+              "PathPart": "get-city",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceGetDashcityCityVar": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceGetDashcity"
+              },
+              "PathPart": "{city}",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -311,6 +324,51 @@
                 ]
               },
               "PathPart": "translate",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodGetDashcityCityVarOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceGetDashcityCityVar"
+              },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -361,13 +419,13 @@
               }
             }
           },
-          "ApiGatewayMethodHelloPost": {
+          "ApiGatewayMethodGetDashcityCityVarGet": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
-              "HttpMethod": "POST",
+              "HttpMethod": "GET",
               "RequestParameters": {},
               "ResourceId": {
-                "Ref": "ApiGatewayResourceHello"
+                "Ref": "ApiGatewayResourceGetDashcityCityVar"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -392,7 +450,7 @@
                       ":lambda:path/2015-03-31/functions/",
                       {
                         "Fn::GetAtt": [
-                          "HelloLambdaFunction",
+                          "GetCityInfoLambdaFunction",
                           "Arn"
                         ]
                       },
@@ -401,15 +459,7 @@
                   ]
                 }
               },
-              "MethodResponses": [],
-              "RequestValidatorId": {
-                "Ref": "ApiGatewayHelloModelValidator"
-              },
-              "RequestModels": {
-                "application/json": {
-                  "Ref": "ApiGatewayMethodHelloPostApplicationJsonModel"
-                }
-              }
+              "MethodResponses": []
             }
           },
           "ApiGatewayMethodTranslatePost": {
@@ -455,37 +505,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayMethodHelloPostApplicationJsonModel": {
-            "Type": "AWS::ApiGateway::Model",
-            "Properties": {
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "ContentType": "application/json",
-              "Schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "name"
-                ]
-              }
-            }
-          },
-          "ApiGatewayHelloModelValidator": {
-            "Type": "AWS::ApiGateway::RequestValidator",
-            "Properties": {
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "ValidateRequestBody": true,
-              "ValidateRequestParameters": true
-            }
-          },
-          "ApiGatewayDeployment1615247198917": {
+          "ApiGatewayDeployment1615248534278": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -494,17 +514,18 @@
               "StageName": "dev"
             },
             "DependsOn": [
+              "ApiGatewayMethodGetDashcityCityVarOptions",
               "ApiGatewayMethodTranslateOptions",
-              "ApiGatewayMethodHelloPost",
+              "ApiGatewayMethodGetDashcityCityVarGet",
               "ApiGatewayMethodTranslatePost"
             ]
           },
-          "HelloLambdaPermissionApiGateway": {
+          "GetCityInfoLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
               "FunctionName": {
                 "Fn::GetAtt": [
-                  "HelloLambdaFunction",
+                  "GetCityInfoLambdaFunction",
                   "Arn"
                 ]
               },
@@ -580,16 +601,16 @@
               "Ref": "ServerlessDeploymentBucket"
             }
           },
-          "HelloLambdaFunctionQualifiedArn": {
+          "GetCityInfoLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersionS1ZJNN8qPdtMiJ00J1vQ38a9wSem6W75P6EHXW6B3M"
+              "Ref": "GetCityInfoLambdaVersionv4SQf5tzkuiOYblAoW2RuW0qJEwGr3NdzRsT26ZoSA"
             }
           },
           "TranslateLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "TranslateLambdaVersionElNA9SazAXUyjSB2IpfHOdHvvYQCar4v9lDJcJSE9k"
+              "Ref": "TranslateLambdaVersionzYYyh0ehkaw6ffIuw1DNxEWAunuIp9FsQxiW2YxwJk"
             }
           },
           "ServiceEndpoint": {
@@ -712,25 +733,37 @@
     ],
     "pluginsData": {},
     "functions": {
-      "hello": {
-        "handler": "src/functions/hello/handler.main",
+      "getCityInfo": {
+        "handler": "lambdas/getCityInfo.handler",
         "events": [
           {
             "http": {
-              "method": "post",
-              "path": "hello",
-              "request": {
-                "schema": {
-                  "application/json": {
-                    "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"ApiGatewayMethodHelloPostApplicationJsonModel\"][\"Properties\"][\"Schema\"]"
-                  }
-                }
+              "path": "get-city/{city}",
+              "method": "get",
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
               },
               "integration": "AWS_PROXY"
             }
           }
         ],
-        "name": "typescript-serverless-api-dev-hello",
+        "name": "typescript-serverless-api-dev-getCityInfo",
         "package": {
           "artifact": ".serverless/typescript-serverless-api.zip"
         },
@@ -738,10 +771,10 @@
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "HelloLambdaVersionS1ZJNN8qPdtMiJ00J1vQ38a9wSem6W75P6EHXW6B3M"
+        "versionLogicalId": "GetCityInfoLambdaVersionv4SQf5tzkuiOYblAoW2RuW0qJEwGr3NdzRsT26ZoSA"
       },
       "translate": {
-        "handler": "src/lambdas/translate.handler",
+        "handler": "lambdas/translate.handler",
         "events": [
           {
             "http": {
@@ -778,7 +811,7 @@
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "TranslateLambdaVersionElNA9SazAXUyjSB2IpfHOdHvvYQCar4v9lDJcJSE9k"
+        "versionLogicalId": "TranslateLambdaVersionzYYyh0ehkaw6ffIuw1DNxEWAunuIp9FsQxiW2YxwJk"
       }
     },
     "configValidationMode": "warn",
@@ -805,7 +838,7 @@
     "isDashboardMonitoringPreconfigured": false
   },
   "package": {
-    "artifactDirectoryName": "serverless/typescript-serverless-api/dev/1615247206575-2021-03-08T23:46:46.575Z",
+    "artifactDirectoryName": "serverless/typescript-serverless-api/dev/1615248542948-2021-03-09T00:09:02.948Z",
     "artifact": ""
   }
 }
